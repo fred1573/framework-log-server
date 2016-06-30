@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+>
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.tomato.log" annotation-config="true"/>
+
+    <bean id="applicationEventMulticaster" class="org.springframework.context.event.SimpleApplicationEventMulticaster">
+        <property name="taskExecutor">
+            <bean class="org.springframework.core.task.SimpleAsyncTaskExecutor"/>
+        </property>
+    </bean>
+
+
+    <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg ref="mongo"/>
+        <constructor-arg name="databaseName" value="tomato_log"/>
+    </bean>
+
+    <beans profile="dev">
+        <mongo:mongo host="192.168.116.28" port="27017">
+            <mongo:options connections-per-host="100" threads-allowed-to-block-for-connection-multiplier="100"
+                           connect-timeout="0"
+                           max-wait-time="5000"/>
+        </mongo:mongo>
+    </beans>
+
+    <beans profile="test">
+        <mongo:mongo host="192.168.1.28" port="27017">
+            <mongo:options connections-per-host="100" threads-allowed-to-block-for-connection-multiplier="100"
+                           connect-timeout="3000"
+                           max-wait-time="5000"/>
+        </mongo:mongo>
+    </beans>
+
+    <beans profile="staging">
+        <mongo:mongo host="10.144.10.151" port="37017"/>
+    </beans>
+
+
+    <beans profile="production">
+        <mongo:mongo replica-set="10.144.10.151:27017,10.161.77.140:27017,10.163.227.13:27017"/>
+    </beans>
+
+</beans>
